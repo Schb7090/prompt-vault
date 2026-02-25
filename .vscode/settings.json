@@ -1,0 +1,6 @@
+{
+    "workbench.editor.autoLockGroups": {
+        "java.formatterSettingsEditor": true
+    },
+    "workbench.editor.closeOnFileDelete": true
+}
