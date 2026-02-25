@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { Category } from './PromptCard';
-import { SearchIcon } from './Icons';
+import { SearchIcon, DownloadIcon } from './Icons';
 
 interface SidebarProps {
     categories: Category[];
@@ -81,7 +81,16 @@ export default function Sidebar({
                 </ul>
             </div>
 
-            <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border-glass)' }}>
+            <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <a
+                    href="/api/export"
+                    className="btn btn-glass"
+                    style={{ width: '100%', textDecoration: 'none', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', borderColor: 'rgba(59, 130, 246, 0.3)' }}
+                    download
+                >
+                    <DownloadIcon className="w-4 h-4" />
+                    <span>Export to Excel</span>
+                </a>
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
                     Personal Prompt DB &copy; 2026
                 </p>

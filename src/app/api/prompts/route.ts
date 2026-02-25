@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { savePromptToMarkdown } from '@/lib/backup';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
             where,
             include: { category: true },
             orderBy: [
-                { order: 'asc' },
+                { order: 'asc' } as any,
                 { updatedAt: 'desc' }
             ],
         });
@@ -42,6 +43,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const { title, content, model, environment, goodFor, description, rating, categoryId } = await request.json();
+
+        // Get all prompts to calculate order
+        const prompts = await prisma.prompt.findMany();
+
         const prompt = await prisma.prompt.create({
             data: {
                 title,
@@ -52,10 +57,14 @@ export async function POST(request: Request) {
                 description: description || null,
                 rating: rating || 0,
                 categoryId: categoryId || null,
-                order: 0
+                order: prompts.length > 0 ? Math.max(...prompts.map((p: any) => p.order || 0)) + 1 : 0
             },
             include: { category: true },
         });
+
+        // Save to backup folder
+        await savePromptToMarkdown(prompt);
+
         return NextResponse.json(prompt, { status: 201 });
     } catch (error) {
         console.error(error);

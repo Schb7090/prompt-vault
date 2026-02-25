@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { savePromptToMarkdown } from '@/lib/backup';
 
 export async function PUT(
     request: Request,
@@ -22,6 +23,10 @@ export async function PUT(
             },
             include: { category: true },
         });
+
+        // Save to backup folder
+        await savePromptToMarkdown(prompt);
+
         return NextResponse.json(prompt);
     } catch (error) {
         return NextResponse.json({ error: 'Failed to update prompt' }, { status: 500 });

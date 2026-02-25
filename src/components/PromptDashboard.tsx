@@ -87,7 +87,7 @@ export default function PromptDashboard() {
 
             // Add order logic (put new items at the end)
             if (!isEdit) {
-                data.order = prompts.length > 0 ? Math.max(...prompts.map(p => p.order || 0)) + 1 : 0;
+                data.order = prompts.length > 0 ? Math.max(...prompts.map((p: any) => p.order || 0)) + 1 : 0;
             }
 
             const res = await fetch(url, {
@@ -375,7 +375,7 @@ export default function PromptDashboard() {
                                                 key={star}
                                                 className={star <= selectedPrompt.rating ? "star active" : "star"}
                                                 style={{ width: '24px', height: '24px', cursor: 'pointer' }}
-                                                onClick={() => handleInlineSave('rating', star.toString())}
+                                                onClick={() => handleInlineSave('rating', star)}
                                             // note inline save sends it as number because spread takes care of it, wait, we need to pass a number.
                                             />
                                         ))}

@@ -1,0 +1,38 @@
+import fs from 'fs';
+import path from 'path';
+
+export async function savePromptToMarkdown(prompt: any) {
+    const backupDir = path.join(process.cwd(), 'prompts_backup');
+
+    if (!fs.existsSync(backupDir)) {
+        fs.mkdirSync(backupDir, { recursive: true });
+    }
+
+    // Sanitize filename
+    const safeTitle = prompt.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const fileName = `${safeTitle}_${prompt.id.substring(0, 8)}.md`;
+    const filePath = path.join(backupDir, fileName);
+
+    const content = `---
+title: ${prompt.title}
+model: ${prompt.model}
+environment: ${prompt.environment}
+goodFor: ${prompt.goodFor || ''}
+rating: ${prompt.rating}
+categoryId: ${prompt.categoryId || ''}
+updatedAt: ${new Date().toISOString()}
+---
+
+# ${prompt.title}
+
+## Description
+${prompt.description || 'No description provided.'}
+
+## Prompt Content
+\`\`\`
+${prompt.content}
+\`\`\`
+`;
+
+    fs.writeFileSync(filePath, content, 'utf8');
+}
