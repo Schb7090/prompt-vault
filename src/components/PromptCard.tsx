@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CopyIcon, CheckIcon, StarIcon, EditIcon, TrashIcon } from './Icons';
+import { CopyIcon, CheckIcon, StarIcon, EditIcon, TrashIcon, CalendarIcon } from './Icons';
 
 export interface Category {
     id: string;
@@ -18,6 +18,8 @@ export interface Prompt {
     rating: number;
     categoryId: string | null;
     category?: Category | null;
+    scheduledAt?: string | null;
+    googleCalendarEventId?: string | null;
     createdAt: string;
     updatedAt: string;
     order?: number;
@@ -61,6 +63,12 @@ export default function PromptCard({ prompt, onEdit, onDelete, showToast }: Prom
                 <span className="pill">{prompt.model}</span>
                 <span className="pill">{prompt.environment}</span>
                 {prompt.goodFor && <span className="pill" style={{ borderColor: 'var(--accent-primary)', color: 'var(--accent-primary)' }}>✨ {prompt.goodFor}</span>}
+                {prompt.scheduledAt && (
+                    <span className="pill calendar-event-chip">
+                        <CalendarIcon width={12} height={12} />
+                        {new Date(prompt.scheduledAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                )}
             </div>
 
             <div className="input-glass" style={{ flex: 1, overflowY: 'auto', marginBottom: '1rem', fontSize: '0.875rem', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>

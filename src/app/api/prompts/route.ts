@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { savePromptToMarkdown } from '@/lib/backup';
+import { isCalendarConfigured, createCalendarEvent } from '@/lib/google-calendar';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,12 +43,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     try {
-        const { title, content, model, environment, goodFor, description, rating, categoryId } = await request.json();
+        const { title, content, model, environment, goodFor, description, rating, categoryId, scheduledAt } = await request.json();
 
-        // Get all prompts to calculate order
         const prompts = await prisma.prompt.findMany();
 
-        const prompt = await prisma.prompt.create({
+        let prompt = await prisma.prompt.create({
             data: {
                 title,
                 content,
@@ -57,12 +57,30 @@ export async function POST(request: Request) {
                 description: description || null,
                 rating: rating || 0,
                 categoryId: categoryId || null,
+                scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
                 order: prompts.length > 0 ? Math.max(...prompts.map((p: any) => p.order || 0)) + 1 : 0
             },
             include: { category: true },
         });
 
-        // Save to backup folder
+        if (scheduledAt && isCalendarConfigured()) {
+            try {
+                const eventId = await createCalendarEvent({
+                    id: prompt.id,
+                    title: prompt.title,
+                    description: prompt.description,
+                    scheduledAt: new Date(scheduledAt),
+                });
+                prompt = await prisma.prompt.update({
+                    where: { id: prompt.id },
+                    data: { googleCalendarEventId: eventId },
+                    include: { category: true },
+                }) as typeof prompt;
+            } catch {
+                // Calendar sync failure is non-fatal
+            }
+        }
+
         await savePromptToMarkdown(prompt);
 
         return NextResponse.json(prompt, { status: 201 });

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { Category } from './PromptCard';
 import { SearchIcon, DownloadIcon } from './Icons';
+import CalendarPanel from './CalendarPanel';
 
 interface SidebarProps {
     categories: Category[];
@@ -9,6 +10,8 @@ interface SidebarProps {
     onSelectCategory: (id: string | null) => void;
     searchQuery: string;
     onSearchChange: (q: string) => void;
+    calendarAuthed: boolean;
+    onCalendarSync?: () => void;
 }
 
 function DroppableCategory({ id, category, activeCategory, onSelectCategory }: { id: string, category: Category, activeCategory: string | null, onSelectCategory: (id: string | null) => void }) {
@@ -34,6 +37,8 @@ export default function Sidebar({
     onSelectCategory,
     searchQuery,
     onSearchChange,
+    calendarAuthed,
+    onCalendarSync,
 }: SidebarProps) {
     return (
         <aside className="sidebar">
@@ -82,6 +87,8 @@ export default function Sidebar({
             </div>
 
             <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <CalendarPanel calendarAuthed={calendarAuthed} onSyncComplete={onCalendarSync} />
+
                 <a
                     href="/api/export"
                     className="btn btn-glass"
