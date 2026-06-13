@@ -257,3 +257,139 @@ h4 {
   scale: 1.02;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--border-glass-strong);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-glass);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* Mobile Navigation — hidden on desktop */
+.mobile-nav {
+  display: none;
+}
+
+/* ─── Responsive: tablet ───────────────────────────────────── */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .sidebar {
+    width: 240px;
+    padding: 1.5rem;
+  }
+
+  .middle-pane {
+    width: 320px;
+  }
+
+  .right-pane {
+    padding: 2rem;
+  }
+}
+
+/* ─── Responsive: mobile ───────────────────────────────────── */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+    height: 100dvh;
+  }
+
+  /* Pane visibility controlled by .mobile-hidden */
+  .sidebar.mobile-hidden,
+  .middle-pane.mobile-hidden,
+  .right-pane.mobile-hidden {
+    display: none !important;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-glass);
+    height: calc(100dvh - 64px);
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .main-content {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .middle-pane {
+    width: 100%;
+    height: 100%;
+    border-right: none;
+  }
+
+  .right-pane {
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+  }
+
+  /* Bottom tab bar */
+  .mobile-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: rgba(2, 6, 23, 0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border-glass);
+    height: 64px;
+    flex-shrink: 0;
+    z-index: 50;
+  }
+
+  .mobile-nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.5rem 2rem;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+    border-radius: var(--radius-sm);
+    letter-spacing: 0.02em;
+  }
+
+  .mobile-nav-btn.active {
+    color: var(--accent-primary);
+  }
+
+  .mobile-nav-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  /* Ensure toast clears tab bar on mobile */
+  .toast {
+    bottom: 80px;
+  }
+}

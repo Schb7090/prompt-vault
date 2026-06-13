@@ -9,6 +9,7 @@ interface SidebarProps {
     onSelectCategory: (id: string | null) => void;
     searchQuery: string;
     onSearchChange: (q: string) => void;
+    className?: string;
 }
 
 function DroppableCategory({ id, category, activeCategory, onSelectCategory }: { id: string, category: Category, activeCategory: string | null, onSelectCategory: (id: string | null) => void }) {
@@ -34,9 +35,10 @@ export default function Sidebar({
     onSelectCategory,
     searchQuery,
     onSearchChange,
+    className = '',
 }: SidebarProps) {
     return (
-        <aside className="sidebar">
+        <aside className={`sidebar${className ? ` ${className}` : ''}`}>
             <div>
                 <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1.5rem', background: 'linear-gradient(90deg, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                     Vault

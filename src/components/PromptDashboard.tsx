@@ -20,7 +20,12 @@ import PromptCard, { Prompt, Category } from './PromptCard';
 import Sidebar from './Sidebar';
 import PromptModal from './PromptModal';
 import { SortableItem } from './SortableItem';
-import { PlusIcon, CheckIcon, EditIcon, TrashIcon, CopyIcon, StarIcon } from './Icons';
+import {
+    PlusIcon, CheckIcon, EditIcon, TrashIcon, CopyIcon, StarIcon,
+    MenuIcon, ListIcon, FileIcon,
+} from './Icons';
+
+type MobilePane = 'sidebar' | 'list' | 'detail';
 
 export default function PromptDashboard() {
     const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -40,6 +45,16 @@ export default function PromptDashboard() {
     const [inlineDescription, setInlineDescription] = useState('');
     const [editingField, setEditingField] = useState<'model' | 'environment' | 'goodFor' | null>(null);
     const [fieldValue, setFieldValue] = useState('');
+
+    // Mobile pane state
+    const [mobilePane, setMobilePane] = useState<MobilePane>('list');
+
+    // Ollama state
+    const [ollamaModel, setOllamaModel] = useState('llama3.2');
+    const [ollamaUrl, setOllamaUrl] = useState('http://localhost:11434');
+    const [ollamaResult, setOllamaResult] = useState('');
+    const [isOllamaLoading, setIsOllamaLoading] = useState(false);
+    const [showOllamaPanel, setShowOllamaPanel] = useState(false);
 
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -85,7 +100,6 @@ export default function PromptDashboard() {
             const url = isEdit ? `/api/prompts/${editingPrompt.id}` : '/api/prompts';
             const method = isEdit ? 'PUT' : 'POST';
 
-            // Add order logic (put new items at the end)
             if (!isEdit) {
                 data.order = prompts.length > 0 ? Math.max(...prompts.map((p: any) => p.order || 0)) + 1 : 0;
             }
@@ -133,15 +147,13 @@ export default function PromptDashboard() {
         const { active, over } = event;
         if (!over) return;
 
-        // Check if dragged over a category in the sidebar
         if (over.id.toString().startsWith('category-')) {
             const newCategoryId = over.id.toString().replace('category-', '');
             const promptId = active.id.toString();
 
-            setPrompts(prev => prev.filter(p => p.id !== promptId)); // Optimistic UI update
+            setPrompts(prev => prev.filter(p => p.id !== promptId));
 
             try {
-                // To fetch existing prompt data for the update payload
                 const p = prompts.find(p => p.id === promptId);
                 if (p) {
                     await fetch(`/api/prompts/${promptId}`, {
@@ -159,20 +171,17 @@ export default function PromptDashboard() {
             return;
         }
 
-        // Handle sorting within the list
         if (active.id !== over.id) {
             setPrompts((items) => {
                 const oldIndex = items.findIndex((i) => i.id === active.id);
                 const newIndex = items.findIndex((i) => i.id === over.id);
                 const newItems = arrayMove(items, oldIndex, newIndex);
 
-                // Update orders
                 const updatedPrompts = newItems.map((item, index) => ({
                     ...item,
                     order: index,
                 }));
 
-                // Save to DB
                 fetch('/api/prompts/reorder', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -202,19 +211,17 @@ export default function PromptDashboard() {
 
     const selectedPrompt = prompts.find(p => p.id === selectedPromptId);
 
-    // Sync inline state when selected prompt changes
     useEffect(() => {
         if (selectedPrompt) {
             setInlineContent(selectedPrompt.content);
             setInlineDescription(selectedPrompt.description || '');
         }
-    }, [selectedPromptId, selectedPrompt?.id]); // only run when ID changes, preventing cursor jumps
+    }, [selectedPromptId, selectedPrompt?.id]);
 
     const handleInlineSave = async (field: string, value: string | number) => {
         if (!selectedPrompt) return;
         const updated = { ...selectedPrompt, [field]: value };
 
-        // Optimistic UI update
         setPrompts(prev => prev.map(p => p.id === selectedPrompt.id ? updated : p));
 
         try {
@@ -223,10 +230,9 @@ export default function PromptDashboard() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updated),
             });
-            // We do not re-fetch to avoid cursor jumps, optimistic update is enough
         } catch (error) {
             console.error('Failed to save inline edit', error);
-            fetchPrompts(); // Revert on failure
+            fetchPrompts();
         }
     };
 
@@ -242,21 +248,45 @@ export default function PromptDashboard() {
         setEditingField(null);
     };
 
+    const handleRunWithOllama = async () => {
+        if (!selectedPrompt) return;
+        setIsOllamaLoading(true);
+        setOllamaResult('');
+        try {
+            const res = await fetch('/api/ollama', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: selectedPrompt.content,
+                    model: ollamaModel,
+                    ollamaUrl,
+                }),
+            });
+            const data = await res.json();
+            setOllamaResult(res.ok ? data.response : `Error: ${data.error}`);
+        } catch {
+            setOllamaResult('Failed to reach the Ollama API route.');
+        } finally {
+            setIsOllamaLoading(false);
+        }
+    };
+
     return (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <div className="app-container">
                 {/* Left Pane: Sidebar */}
                 <Sidebar
+                    className={mobilePane !== 'sidebar' ? 'mobile-hidden' : ''}
                     categories={categories}
                     activeCategory={activeCategory}
-                    onSelectCategory={setActiveCategory}
+                    onSelectCategory={(id) => { setActiveCategory(id); setMobilePane('list'); }}
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
                 />
 
                 <main className="main-content">
                     {/* Middle Pane: Prompt List */}
-                    <div className="middle-pane">
+                    <div className={`middle-pane${mobilePane !== 'list' ? ' mobile-hidden' : ''}`}>
                         <header className="middle-pane-header">
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
@@ -277,7 +307,7 @@ export default function PromptDashboard() {
                                     prompts.map((prompt) => (
                                         <SortableItem key={prompt.id} id={prompt.id}>
                                             <div
-                                                onClick={() => setSelectedPromptId(prompt.id)}
+                                                onClick={() => { setSelectedPromptId(prompt.id); setMobilePane('detail'); }}
                                                 className={`glass-card compact-card ${selectedPromptId === prompt.id ? 'selected' : ''}`}
                                             >
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
@@ -301,7 +331,7 @@ export default function PromptDashboard() {
                     </div>
 
                     {/* Right Pane: Selected Prompt Details */}
-                    <div className="right-pane">
+                    <div className={`right-pane${mobilePane !== 'detail' ? ' mobile-hidden' : ''}`}>
                         {selectedPrompt ? (
                             <div className="glass-panel animate-fade-in" style={{ padding: '2rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
@@ -342,7 +372,6 @@ export default function PromptDashboard() {
                                 </div>
 
                                 <div style={{ display: 'flex', gap: '1.5rem', flex: 1, minHeight: 0, marginBottom: '1.5rem' }}>
-                                    {/* Left Column: Prompt Content */}
                                     <div style={{ flex: 2, display: 'flex', flexDirection: 'column' }}>
                                         <h3 style={{ fontSize: '0.875rem', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Prompt Content</h3>
                                         <textarea
@@ -354,7 +383,6 @@ export default function PromptDashboard() {
                                         />
                                     </div>
 
-                                    {/* Right Column: Description / Notes */}
                                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                                         <h3 style={{ fontSize: '0.875rem', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Description & Notes</h3>
                                         <textarea
@@ -368,7 +396,7 @@ export default function PromptDashboard() {
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                                     <div className="star-rating">
                                         {[1, 2, 3, 4, 5].map((star) => (
                                             <StarIcon
@@ -376,7 +404,6 @@ export default function PromptDashboard() {
                                                 className={star <= selectedPrompt.rating ? "star active" : "star"}
                                                 style={{ width: '24px', height: '24px', cursor: 'pointer' }}
                                                 onClick={() => handleInlineSave('rating', star)}
-                                            // note inline save sends it as number because spread takes care of it, wait, we need to pass a number.
                                             />
                                         ))}
                                     </div>
@@ -384,6 +411,55 @@ export default function PromptDashboard() {
                                         {copied ? <CheckIcon className="w-5 h-5" /> : <CopyIcon className="w-5 h-5" />}
                                         {copied ? 'Copied!' : 'Copy Prompt'}
                                     </button>
+                                </div>
+
+                                {/* Ollama Panel */}
+                                <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '1rem' }}>
+                                    <button
+                                        className="btn btn-glass"
+                                        style={{ width: '100%', justifyContent: 'space-between' }}
+                                        onClick={() => setShowOllamaPanel(!showOllamaPanel)}
+                                    >
+                                        <span>🤖 Run with Ollama</span>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{showOllamaPanel ? '▲' : '▼'}</span>
+                                    </button>
+
+                                    {showOllamaPanel && (
+                                        <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                                <input
+                                                    className="input-glass"
+                                                    placeholder="Model (e.g. llama3.2)"
+                                                    value={ollamaModel}
+                                                    onChange={(e) => setOllamaModel(e.target.value)}
+                                                    style={{ flex: '1 1 120px', padding: '0.5rem 0.875rem' }}
+                                                />
+                                                <input
+                                                    className="input-glass"
+                                                    placeholder="Ollama URL"
+                                                    value={ollamaUrl}
+                                                    onChange={(e) => setOllamaUrl(e.target.value)}
+                                                    style={{ flex: '2 1 200px', padding: '0.5rem 0.875rem' }}
+                                                />
+                                                <button
+                                                    className="btn btn-primary"
+                                                    onClick={handleRunWithOllama}
+                                                    disabled={isOllamaLoading}
+                                                    style={{ flexShrink: 0 }}
+                                                >
+                                                    {isOllamaLoading ? 'Running…' : 'Run'}
+                                                </button>
+                                            </div>
+                                            {ollamaResult && (
+                                                <textarea
+                                                    className="input-glass"
+                                                    readOnly
+                                                    value={ollamaResult}
+                                                    style={{ minHeight: '180px', fontFamily: 'inherit', resize: 'vertical', color: 'var(--text-primary)' }}
+                                                />
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ) : (
@@ -396,6 +472,32 @@ export default function PromptDashboard() {
                         )}
                     </div>
                 </main>
+
+                {/* Mobile Bottom Navigation */}
+                <nav className="mobile-nav">
+                    <button
+                        className={`mobile-nav-btn${mobilePane === 'sidebar' ? ' active' : ''}`}
+                        onClick={() => setMobilePane('sidebar')}
+                    >
+                        <MenuIcon style={{ width: '20px', height: '20px' }} />
+                        <span>Vault</span>
+                    </button>
+                    <button
+                        className={`mobile-nav-btn${mobilePane === 'list' ? ' active' : ''}`}
+                        onClick={() => setMobilePane('list')}
+                    >
+                        <ListIcon style={{ width: '20px', height: '20px' }} />
+                        <span>Prompts</span>
+                    </button>
+                    <button
+                        className={`mobile-nav-btn${mobilePane === 'detail' ? ' active' : ''}`}
+                        onClick={() => setMobilePane('detail')}
+                        disabled={!selectedPromptId}
+                    >
+                        <FileIcon style={{ width: '20px', height: '20px' }} />
+                        <span>Detail</span>
+                    </button>
+                </nav>
 
                 <PromptModal
                     isOpen={isModalOpen}
