@@ -20,7 +20,7 @@ import PromptCard, { Prompt, Category } from './PromptCard';
 import Sidebar from './Sidebar';
 import PromptModal from './PromptModal';
 import { SortableItem } from './SortableItem';
-import { PlusIcon, CheckIcon, EditIcon, TrashIcon, CopyIcon, StarIcon } from './Icons';
+import { PlusIcon, CheckIcon, EditIcon, TrashIcon, CopyIcon, StarIcon, CalendarIcon } from './Icons';
 
 export default function PromptDashboard() {
     const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -34,6 +34,7 @@ export default function PromptDashboard() {
 
     const [toastMessage, setToastMessage] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
+    const [calendarAuthed, setCalendarAuthed] = useState(false);
 
     // Inline editing states
     const [inlineContent, setInlineContent] = useState('');
@@ -48,6 +49,7 @@ export default function PromptDashboard() {
 
     useEffect(() => {
         fetch('/api/seed').then(() => fetchCategories());
+        fetch('/api/calendar').then(r => r.json()).then(d => setCalendarAuthed(!!d.configured)).catch(() => {});
     }, []);
 
     useEffect(() => {
@@ -252,6 +254,8 @@ export default function PromptDashboard() {
                     onSelectCategory={setActiveCategory}
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
+                    calendarAuthed={calendarAuthed}
+                    onCalendarSync={fetchPrompts}
                 />
 
                 <main className="main-content">
@@ -289,6 +293,7 @@ export default function PromptDashboard() {
                                                     {prompt.category && <span className="pill pill-accent" style={{ fontSize: '0.65rem' }}>{prompt.category.name}</span>}
                                                     <span className="pill" style={{ fontSize: '0.65rem' }}>{prompt.model}</span>
                                                     {prompt.goodFor && <span className="pill" style={{ fontSize: '0.65rem', borderColor: 'var(--accent-primary)', color: 'var(--accent-primary)' }}>✨</span>}
+                                                    {prompt.scheduledAt && <span className="pill calendar-event-chip" style={{ fontSize: '0.65rem' }}><CalendarIcon width={10} height={10} /></span>}
                                                 </div>
                                             </div>
                                         </SortableItem>
@@ -327,6 +332,13 @@ export default function PromptDashboard() {
                                             ) : (
                                                 <span className="pill" style={{ cursor: 'pointer', borderColor: 'var(--accent-primary)', color: 'var(--accent-primary)' }} onClick={() => handleFieldEditStart('goodFor', selectedPrompt.goodFor)}>
                                                     ✨ {selectedPrompt.goodFor || 'Add Use Case'}
+                                                </span>
+                                            )}
+
+                                            {selectedPrompt.scheduledAt && (
+                                                <span className="pill calendar-event-chip">
+                                                    <CalendarIcon width={12} height={12} />
+                                                    {new Date(selectedPrompt.scheduledAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             )}
                                         </div>

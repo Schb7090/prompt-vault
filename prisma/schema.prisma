@@ -26,6 +26,8 @@ model Prompt {
   order       Float    @default(0)
   categoryId  String?
   category    Category? @relation(fields: [categoryId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  scheduledAt           DateTime?
+  googleCalendarEventId String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 }

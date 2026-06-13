@@ -20,6 +20,7 @@ export default function PromptModal({ isOpen, onClose, onSave, initialData, cate
         description: '',
         rating: 3,
         categoryId: '',
+        scheduledAt: '',
     });
 
     useEffect(() => {
@@ -33,6 +34,9 @@ export default function PromptModal({ isOpen, onClose, onSave, initialData, cate
                 description: initialData.description || '',
                 rating: initialData.rating || 0,
                 categoryId: initialData.categoryId || '',
+                scheduledAt: initialData.scheduledAt
+                    ? new Date(initialData.scheduledAt).toISOString().slice(0, 16)
+                    : '',
             });
         } else {
             setFormData({
@@ -44,6 +48,7 @@ export default function PromptModal({ isOpen, onClose, onSave, initialData, cate
                 description: '',
                 rating: 3,
                 categoryId: '',
+                scheduledAt: '',
             });
         }
     }, [initialData, isOpen]);
@@ -105,7 +110,7 @@ export default function PromptModal({ isOpen, onClose, onSave, initialData, cate
                         onChange={(e) => setFormData({ ...formData, goodFor: e.target.value })}
                     />
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', gridColumn: 'span 2' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         <label style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Rating</label>
                         <div className="star-rating">
                             {[1, 2, 3, 4, 5].map((star) => (
@@ -117,6 +122,16 @@ export default function PromptModal({ isOpen, onClose, onSave, initialData, cate
                                 />
                             ))}
                         </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <label style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Schedule</label>
+                        <input
+                            type="datetime-local"
+                            className="input-glass"
+                            value={formData.scheduledAt}
+                            onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
+                        />
                     </div>
                 </div>
 

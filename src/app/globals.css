@@ -257,3 +257,143 @@ h4 {
   scale: 1.02;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
+
+/* ── Google Calendar Integration ─────────────────────────── */
+.calendar-panel {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.calendar-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.calendar-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.calendar-sync-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--accent-primary);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.calendar-sync-btn:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.calendar-sync-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.calendar-sync-result {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.calendar-connect-btn {
+  display: block;
+  text-align: center;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.calendar-connect-btn:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.calendar-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.calendar-event-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.6rem;
+}
+
+.calendar-event-title {
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calendar-event-time {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.calendar-loading,
+.calendar-empty {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.calendar-event-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  color: var(--accent-primary) !important;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* datetime-local input styling to match glass inputs */
+input[type="datetime-local"].input-glass::-webkit-calendar-picker-indicator {
+  filter: invert(0.6);
+  cursor: pointer;
+}
+
+/* Mobile: stack calendar panel below search */
+@media (max-width: 768px) {
+  .calendar-events-list {
+    max-height: 120px;
+  }
+  .calendar-panel {
+    margin-top: 0.5rem;
+  }
+}
