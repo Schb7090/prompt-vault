@@ -26,7 +26,7 @@ function makeRequest(url: string) {
 
 describe('GET /api/prompts', () => {
   it('fetches all prompts with no filters', async () => {
-    prisma.prompt.findMany.mockResolvedValue([mockPrompt] as any)
+    prisma.prompt.findMany.mockResolvedValue([mockPrompt] as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
     const { GET } = await import('@/app/api/prompts/route')
     const response = await GET(makeRequest('http://localhost/api/prompts'))
@@ -112,8 +112,8 @@ describe('POST /api/prompts', () => {
   it('creates a prompt with order = max + 1', async () => {
     prisma.prompt.findMany.mockResolvedValue([
       { order: 0 }, { order: 1 }, { order: 2 },
-    ] as any)
-    prisma.prompt.create.mockResolvedValue(mockPrompt as any)
+    ] as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+    prisma.prompt.create.mockResolvedValue(mockPrompt as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
     const { POST } = await import('@/app/api/prompts/route')
     const request = new Request('http://localhost/api/prompts', {
@@ -135,7 +135,7 @@ describe('POST /api/prompts', () => {
 
   it('uses order 0 when no prompts exist', async () => {
     prisma.prompt.findMany.mockResolvedValue([])
-    prisma.prompt.create.mockResolvedValue(mockPrompt as any)
+    prisma.prompt.create.mockResolvedValue(mockPrompt as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
     const { POST } = await import('@/app/api/prompts/route')
     const request = new Request('http://localhost/api/prompts', {
@@ -152,7 +152,7 @@ describe('POST /api/prompts', () => {
   it('calls savePromptToMarkdown after creation', async () => {
     const { savePromptToMarkdown } = await import('@/lib/backup')
     prisma.prompt.findMany.mockResolvedValue([])
-    prisma.prompt.create.mockResolvedValue(mockPrompt as any)
+    prisma.prompt.create.mockResolvedValue(mockPrompt as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
     const { POST } = await import('@/app/api/prompts/route')
     const request = new Request('http://localhost/api/prompts', {
@@ -166,7 +166,7 @@ describe('POST /api/prompts', () => {
 
   it('defaults model to "Unknown" when not provided', async () => {
     prisma.prompt.findMany.mockResolvedValue([])
-    prisma.prompt.create.mockResolvedValue(mockPrompt as any)
+    prisma.prompt.create.mockResolvedValue(mockPrompt as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
     const { POST } = await import('@/app/api/prompts/route')
     const request = new Request('http://localhost/api/prompts', {

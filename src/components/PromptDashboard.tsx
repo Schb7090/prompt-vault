@@ -16,9 +16,9 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import PromptCard, { Prompt, Category } from './PromptCard';
+import { Prompt, Category } from './PromptCard';
 import Sidebar from './Sidebar';
-import PromptModal from './PromptModal';
+import PromptModal, { PromptFormData } from './PromptModal';
 import { SortableItem } from './SortableItem';
 import { PlusIcon, CheckIcon, EditIcon, TrashIcon, CopyIcon, StarIcon, CalendarIcon } from './Icons';
 
@@ -47,15 +47,6 @@ export default function PromptDashboard() {
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
 
-    useEffect(() => {
-        fetch('/api/seed').then(() => fetchCategories());
-        fetch('/api/calendar').then(r => r.json()).then(d => setCalendarAuthed(!!d.configured)).catch(() => {});
-    }, []);
-
-    useEffect(() => {
-        fetchPrompts();
-    }, [activeCategory, searchQuery]);
-
     const fetchCategories = async () => {
         try {
             const res = await fetch('/api/categories');
@@ -81,7 +72,17 @@ export default function PromptDashboard() {
         }
     };
 
-    const handleSavePrompt = async (data: any) => {
+    useEffect(() => {
+        fetch('/api/seed').then(() => fetchCategories());
+        fetch('/api/calendar').then(r => r.json()).then(d => setCalendarAuthed(!!d.configured)).catch(() => {});
+    }, []);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchPrompts();
+    }, [activeCategory, searchQuery]);
+
+    const handleSavePrompt = async (data: PromptFormData) => {
         try {
             const isEdit = !!editingPrompt;
             const url = isEdit ? `/api/prompts/${editingPrompt.id}` : '/api/prompts';
@@ -89,7 +90,7 @@ export default function PromptDashboard() {
 
             // Add order logic (put new items at the end)
             if (!isEdit) {
-                data.order = prompts.length > 0 ? Math.max(...prompts.map((p: any) => p.order || 0)) + 1 : 0;
+                data.order = prompts.length > 0 ? Math.max(...prompts.map((p) => p.order || 0)) + 1 : 0;
             }
 
             const res = await fetch(url, {
@@ -207,6 +208,7 @@ export default function PromptDashboard() {
     // Sync inline state when selected prompt changes
     useEffect(() => {
         if (selectedPrompt) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setInlineContent(selectedPrompt.content);
             setInlineDescription(selectedPrompt.description || '');
         }

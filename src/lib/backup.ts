@@ -1,7 +1,19 @@
 import fs from 'fs';
 import path from 'path';
 
-export async function savePromptToMarkdown(prompt: any): Promise<void> {
+interface BackupPrompt {
+    id: string;
+    title: string;
+    content: string;
+    model: string;
+    environment: string;
+    goodFor?: string | null;
+    rating: number;
+    categoryId?: string | null;
+    description?: string | null;
+}
+
+export async function savePromptToMarkdown(prompt: BackupPrompt): Promise<void> {
     try {
         const backupDir = path.join(process.cwd(), 'prompts_backup');
 

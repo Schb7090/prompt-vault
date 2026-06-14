@@ -6,7 +6,7 @@ vi.mock('@/lib/prisma', () => ({ default: prisma }))
 describe('PUT /api/prompts/reorder', () => {
   it('calls $transaction with update operations for each prompt', async () => {
     prisma.$transaction.mockResolvedValue([])
-    prisma.prompt.update.mockReturnValue({} as any)
+    prisma.prompt.update.mockReturnValue({} as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
     const { PUT } = await import('@/app/api/prompts/reorder/route')
     const request = new Request('http://localhost/api/prompts/reorder', {
@@ -30,7 +30,7 @@ describe('PUT /api/prompts/reorder', () => {
 
   it('passes correct order and id to each update', async () => {
     prisma.$transaction.mockResolvedValue([])
-    prisma.prompt.update.mockReturnValue({} as any)
+    prisma.prompt.update.mockReturnValue({} as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
     const { PUT } = await import('@/app/api/prompts/reorder/route')
     const request = new Request('http://localhost/api/prompts/reorder', {

@@ -26,7 +26,7 @@ function makeParams(id: string) {
 
 describe('PUT /api/prompts/[id]', () => {
   it('updates a prompt and returns it', async () => {
-    prisma.prompt.update.mockResolvedValue(mockPrompt as any)
+    prisma.prompt.update.mockResolvedValue(mockPrompt as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
     const { PUT } = await import('@/app/api/prompts/[id]/route')
     const request = new Request('http://localhost/api/prompts/p1', {
@@ -48,7 +48,7 @@ describe('PUT /api/prompts/[id]', () => {
 
   it('calls savePromptToMarkdown after update', async () => {
     const { savePromptToMarkdown } = await import('@/lib/backup')
-    prisma.prompt.update.mockResolvedValue(mockPrompt as any)
+    prisma.prompt.update.mockResolvedValue(mockPrompt as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
     const { PUT } = await import('@/app/api/prompts/[id]/route')
     const request = new Request('http://localhost/api/prompts/p1', {
@@ -76,7 +76,7 @@ describe('PUT /api/prompts/[id]', () => {
 
 describe('DELETE /api/prompts/[id]', () => {
   it('deletes a prompt and returns success message', async () => {
-    prisma.prompt.delete.mockResolvedValue(mockPrompt as any)
+    prisma.prompt.delete.mockResolvedValue(mockPrompt as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
     const { DELETE } = await import('@/app/api/prompts/[id]/route')
     const request = new Request('http://localhost/api/prompts/p1', { method: 'DELETE' })
