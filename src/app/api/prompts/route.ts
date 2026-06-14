@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import { savePromptToMarkdown } from '@/lib/backup';
 
@@ -12,7 +13,7 @@ export async function GET(request: Request) {
         const ratingStr = searchParams.get('rating');
         const rating = ratingStr ? parseInt(ratingStr, 10) : undefined;
 
-        const where: any = {};
+        const where: Prisma.PromptWhereInput = {};
         if (q) {
             where.OR = [
                 { title: { contains: q } },
@@ -30,12 +31,12 @@ export async function GET(request: Request) {
             where,
             include: { category: true },
             orderBy: [
-                { order: 'asc' } as any,
-                { updatedAt: 'desc' }
+                { order: 'asc' },
+                { updatedAt: 'desc' },
             ],
         });
         return NextResponse.json(prompts);
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: 'Failed to fetch prompts' }, { status: 500 });
     }
 }
@@ -44,7 +45,6 @@ export async function POST(request: Request) {
     try {
         const { title, content, model, environment, goodFor, description, rating, categoryId } = await request.json();
 
-        // Get all prompts to calculate order
         const prompts = await prisma.prompt.findMany();
 
         const prompt = await prisma.prompt.create({
@@ -57,12 +57,11 @@ export async function POST(request: Request) {
                 description: description || null,
                 rating: rating || 0,
                 categoryId: categoryId || null,
-                order: prompts.length > 0 ? Math.max(...prompts.map((p: any) => p.order || 0)) + 1 : 0
+                order: prompts.length > 0 ? Math.max(...prompts.map((p) => p.order || 0)) + 1 : 0,
             },
             include: { category: true },
         });
 
-        // Save to backup folder
         await savePromptToMarkdown(prompt);
 
         return NextResponse.json(prompt, { status: 201 });

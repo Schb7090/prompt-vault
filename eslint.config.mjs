@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Compiled / generated artifacts — not authored TS:
+    "prisma/**",
   ]),
 ]);
 

@@ -2,10 +2,21 @@ import { useState, useEffect } from 'react';
 import { Prompt, Category } from './PromptCard';
 import { StarIcon } from './Icons';
 
+export interface PromptFormData {
+    title: string;
+    content: string;
+    model: string;
+    environment: string;
+    goodFor: string;
+    description: string;
+    rating: number;
+    categoryId: string;
+}
+
 interface PromptModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (promptData: any) => void;
+    onSave: (promptData: PromptFormData) => void;
     initialData?: Prompt | null;
     categories: Category[];
 }
@@ -23,29 +34,30 @@ export default function PromptModal({ isOpen, onClose, onSave, initialData, cate
     });
 
     useEffect(() => {
-        if (initialData) {
-            setFormData({
-                title: initialData.title,
-                content: initialData.content,
-                model: initialData.model || '',
-                environment: initialData.environment || '',
-                goodFor: initialData.goodFor || '',
-                description: initialData.description || '',
-                rating: initialData.rating || 0,
-                categoryId: initialData.categoryId || '',
-            });
-        } else {
-            setFormData({
-                title: '',
-                content: '',
-                model: 'GPT-4o',
-                environment: 'ChatGPT',
-                goodFor: '',
-                description: '',
-                rating: 3,
-                categoryId: '',
-            });
-        }
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setFormData(
+            initialData
+                ? {
+                    title: initialData.title,
+                    content: initialData.content,
+                    model: initialData.model || '',
+                    environment: initialData.environment || '',
+                    goodFor: initialData.goodFor || '',
+                    description: initialData.description || '',
+                    rating: initialData.rating || 0,
+                    categoryId: initialData.categoryId || '',
+                }
+                : {
+                    title: '',
+                    content: '',
+                    model: 'GPT-4o',
+                    environment: 'ChatGPT',
+                    goodFor: '',
+                    description: '',
+                    rating: 3,
+                    categoryId: '',
+                }
+        );
     }, [initialData, isOpen]);
 
     if (!isOpen) return null;

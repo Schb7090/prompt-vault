@@ -9,12 +9,12 @@ export async function GET() {
         const prompts = await prisma.prompt.findMany({
             include: { category: true },
             orderBy: [
-                { order: 'asc' } as any,
-                { updatedAt: 'desc' }
+                { order: 'asc' },
+                { updatedAt: 'desc' },
             ],
         });
 
-        const data = prompts.map((p: any) => ({
+        const data = prompts.map((p) => ({
             Title: p.title,
             Model: p.model,
             Environment: p.environment,

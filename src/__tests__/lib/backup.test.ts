@@ -29,6 +29,7 @@ describe('savePromptToMarkdown', () => {
 
     it('creates backup directory when it does not exist', async () => {
         vi.mocked(fs.existsSync).mockReturnValue(false)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         vi.mocked(fs.mkdirSync).mockReturnValue(undefined as any)
         vi.mocked(fs.writeFileSync).mockReturnValue(undefined)
 

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { Category } from './PromptCard';
 import { SearchIcon, DownloadIcon } from './Icons';

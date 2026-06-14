@@ -22,6 +22,7 @@ describe('GET /api/categories', () => {
     beforeEach(() => vi.clearAllMocks())
 
     it('returns categories sorted by name', async () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         vi.mocked(prisma.category.findMany).mockResolvedValue(mockCategories as any)
 
         const response = await GET()
@@ -46,6 +47,7 @@ describe('POST /api/categories', () => {
 
     it('creates a new category and returns 201', async () => {
         const created = { id: 'cat3', name: 'Marketing', color: '#10b981' }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         vi.mocked(prisma.category.create).mockResolvedValue(created as any)
 
         const request = new Request('http://localhost:3000/api/categories', {

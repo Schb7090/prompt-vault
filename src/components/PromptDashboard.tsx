@@ -16,9 +16,9 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import PromptCard, { Prompt, Category } from './PromptCard';
+import { Prompt, Category } from './PromptCard';
 import Sidebar from './Sidebar';
-import PromptModal from './PromptModal';
+import PromptModal, { PromptFormData } from './PromptModal';
 import { SortableItem } from './SortableItem';
 import {
     PlusIcon, CheckIcon, EditIcon, TrashIcon, CopyIcon, StarIcon,
@@ -94,14 +94,14 @@ export default function PromptDashboard() {
         }
     };
 
-    const handleSavePrompt = async (data: any) => {
+    const handleSavePrompt = async (data: PromptFormData & { order?: number }) => {
         try {
             const isEdit = !!editingPrompt;
             const url = isEdit ? `/api/prompts/${editingPrompt.id}` : '/api/prompts';
             const method = isEdit ? 'PUT' : 'POST';
 
             if (!isEdit) {
-                data.order = prompts.length > 0 ? Math.max(...prompts.map((p: any) => p.order || 0)) + 1 : 0;
+                data.order = prompts.length > 0 ? Math.max(...prompts.map((p) => p.order || 0)) + 1 : 0;
             }
 
             const res = await fetch(url, {
