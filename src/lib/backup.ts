@@ -1,19 +1,20 @@
 import fs from 'fs';
 import path from 'path';
 
-export async function savePromptToMarkdown(prompt: any) {
-    const backupDir = path.join(process.cwd(), 'prompts_backup');
+export async function savePromptToMarkdown(prompt: any): Promise<void> {
+    try {
+        const backupDir = path.join(process.cwd(), 'prompts_backup');
 
-    if (!fs.existsSync(backupDir)) {
-        fs.mkdirSync(backupDir, { recursive: true });
-    }
+        if (!fs.existsSync(backupDir)) {
+            fs.mkdirSync(backupDir, { recursive: true });
+        }
 
-    // Sanitize filename
-    const safeTitle = prompt.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    const fileName = `${safeTitle}_${prompt.id.substring(0, 8)}.md`;
-    const filePath = path.join(backupDir, fileName);
+        // Sanitize filename
+        const safeTitle = prompt.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const fileName = `${safeTitle}_${prompt.id.substring(0, 8)}.md`;
+        const filePath = path.join(backupDir, fileName);
 
-    const content = `---
+        const content = `---
 title: ${prompt.title}
 model: ${prompt.model}
 environment: ${prompt.environment}
@@ -34,5 +35,8 @@ ${prompt.content}
 \`\`\`
 `;
 
-    fs.writeFileSync(filePath, content, 'utf8');
+        fs.writeFileSync(filePath, content, 'utf8');
+    } catch (err) {
+        console.error(`[backup] Failed to save prompt "${prompt.id}" to markdown:`, err);
+    }
 }
