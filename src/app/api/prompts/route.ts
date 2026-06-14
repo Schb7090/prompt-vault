@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import { savePromptToMarkdown } from '@/lib/backup';
 import { isCalendarConfigured, createCalendarEvent } from '@/lib/google-calendar';
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
         const ratingStr = searchParams.get('rating');
         const rating = ratingStr ? parseInt(ratingStr, 10) : undefined;
 
-        const where: any = {};
+        const where: Prisma.PromptWhereInput = {};
         if (q) {
             where.OR = [
                 { title: { contains: q } },
@@ -31,7 +32,7 @@ export async function GET(request: Request) {
             where,
             include: { category: true },
             orderBy: [
-                { order: 'asc' } as any,
+                { order: 'asc' },
                 { updatedAt: 'desc' }
             ],
         });
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
                 rating: rating || 0,
                 categoryId: categoryId || null,
                 scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
-                order: prompts.length > 0 ? Math.max(...prompts.map((p: any) => p.order || 0)) + 1 : 0
+                order: prompts.length > 0 ? Math.max(...prompts.map((p) => p.order || 0)) + 1 : 0
             },
             include: { category: true },
         });
