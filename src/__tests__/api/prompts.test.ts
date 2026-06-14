@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect, vi } from 'vitest'
 import prisma from '../__mocks__/prisma'
 
@@ -26,6 +27,7 @@ function makeRequest(url: string) {
 
 describe('GET /api/prompts', () => {
   it('fetches all prompts with no filters', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prisma.prompt.findMany.mockResolvedValue([mockPrompt] as any)
 
     const { GET } = await import('@/app/api/prompts/route')
@@ -112,7 +114,9 @@ describe('POST /api/prompts', () => {
   it('creates a prompt with order = max + 1', async () => {
     prisma.prompt.findMany.mockResolvedValue([
       { order: 0 }, { order: 1 }, { order: 2 },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ] as any)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prisma.prompt.create.mockResolvedValue(mockPrompt as any)
 
     const { POST } = await import('@/app/api/prompts/route')
@@ -135,6 +139,7 @@ describe('POST /api/prompts', () => {
 
   it('uses order 0 when no prompts exist', async () => {
     prisma.prompt.findMany.mockResolvedValue([])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prisma.prompt.create.mockResolvedValue(mockPrompt as any)
 
     const { POST } = await import('@/app/api/prompts/route')
@@ -152,6 +157,7 @@ describe('POST /api/prompts', () => {
   it('calls savePromptToMarkdown after creation', async () => {
     const { savePromptToMarkdown } = await import('@/lib/backup')
     prisma.prompt.findMany.mockResolvedValue([])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prisma.prompt.create.mockResolvedValue(mockPrompt as any)
 
     const { POST } = await import('@/app/api/prompts/route')
@@ -166,6 +172,7 @@ describe('POST /api/prompts', () => {
 
   it('defaults model to "Unknown" when not provided', async () => {
     prisma.prompt.findMany.mockResolvedValue([])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prisma.prompt.create.mockResolvedValue(mockPrompt as any)
 
     const { POST } = await import('@/app/api/prompts/route')

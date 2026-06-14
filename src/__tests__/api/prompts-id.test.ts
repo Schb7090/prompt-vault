@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect, vi } from 'vitest'
 import prisma from '../__mocks__/prisma'
 
@@ -26,6 +27,7 @@ function makeParams(id: string) {
 
 describe('PUT /api/prompts/[id]', () => {
   it('updates a prompt and returns it', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prisma.prompt.update.mockResolvedValue(mockPrompt as any)
 
     const { PUT } = await import('@/app/api/prompts/[id]/route')
@@ -48,6 +50,7 @@ describe('PUT /api/prompts/[id]', () => {
 
   it('calls savePromptToMarkdown after update', async () => {
     const { savePromptToMarkdown } = await import('@/lib/backup')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prisma.prompt.update.mockResolvedValue(mockPrompt as any)
 
     const { PUT } = await import('@/app/api/prompts/[id]/route')
@@ -76,6 +79,7 @@ describe('PUT /api/prompts/[id]', () => {
 
 describe('DELETE /api/prompts/[id]', () => {
   it('deletes a prompt and returns success message', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prisma.prompt.delete.mockResolvedValue(mockPrompt as any)
 
     const { DELETE } = await import('@/app/api/prompts/[id]/route')

@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect, vi } from 'vitest'
 import prisma from '../__mocks__/prisma'
 
@@ -6,6 +7,7 @@ vi.mock('@/lib/prisma', () => ({ default: prisma }))
 describe('PUT /api/prompts/reorder', () => {
   it('calls $transaction with update operations for each prompt', async () => {
     prisma.$transaction.mockResolvedValue([])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prisma.prompt.update.mockReturnValue({} as any)
 
     const { PUT } = await import('@/app/api/prompts/reorder/route')
@@ -30,6 +32,7 @@ describe('PUT /api/prompts/reorder', () => {
 
   it('passes correct order and id to each update', async () => {
     prisma.$transaction.mockResolvedValue([])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prisma.prompt.update.mockReturnValue({} as any)
 
     const { PUT } = await import('@/app/api/prompts/reorder/route')

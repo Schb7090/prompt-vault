@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect, vi } from 'vitest'
 import prisma from '../__mocks__/prisma'
 
@@ -29,6 +30,7 @@ const mockPrompts = [
 
 describe('GET /api/export', () => {
   it('returns an xlsx file response with correct content-type', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prisma.prompt.findMany.mockResolvedValue(mockPrompts as any)
 
     const { GET } = await import('@/app/api/export/route')
@@ -41,6 +43,7 @@ describe('GET /api/export', () => {
 
   it('maps prompts to correct column names', async () => {
     const { utils } = await import('xlsx')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prisma.prompt.findMany.mockResolvedValue(mockPrompts as any)
 
     const { GET } = await import('@/app/api/export/route')
@@ -60,6 +63,7 @@ describe('GET /api/export', () => {
 
   it('uses "N/A" for prompts without a category', async () => {
     const { utils } = await import('xlsx')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prisma.prompt.findMany.mockResolvedValue([{ ...mockPrompts[0], category: null }] as any)
 
     const { GET } = await import('@/app/api/export/route')
