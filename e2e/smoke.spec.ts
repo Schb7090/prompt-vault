@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Prompt Vault smoke tests', () => {
     test('loads the dashboard', async ({ page }) => {
         await page.goto('/')
-        await expect(page.locator('text=Vault')).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Vault' })).toBeVisible()
         await expect(page.locator('h1:has-text("Prompts")')).toBeVisible()
     })
 
