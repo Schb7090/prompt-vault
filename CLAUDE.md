@@ -125,7 +125,7 @@ All routes live under `src/app/api/` and use Next.js Route Handlers (App Router)
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/api/prompts` | List prompts. Query: `search`, `category`, `rating` |
+| GET | `/api/prompts` | List prompts. Query: `q` (text search), `categoryId`, `rating` (exact match) |
 | POST | `/api/prompts` | Create a prompt |
 | PUT | `/api/prompts/[id]` | Update a prompt |
 | DELETE | `/api/prompts/[id]` | Delete a prompt |
@@ -140,7 +140,11 @@ All routes live under `src/app/api/` and use Next.js Route Handlers (App Router)
 All client-side fetches use `{ cache: 'no-store' }` to ensure fresh data:
 
 ```ts
-const res = await fetch('/api/prompts', { cache: 'no-store' });
+// Query params use 'q' for text search and 'categoryId' (not 'search'/'category')
+const res = await fetch('/api/prompts?q=haiku&categoryId=abc123', {
+  cache: 'no-store',
+  headers: { 'Cache-Control': 'no-cache' },
+});
 ```
 
 ---
@@ -162,10 +166,11 @@ User interaction
 **Key PromptDashboard state:**
 - `prompts` — full prompt list
 - `categories` — full category list
-- `selectedCategory` — current sidebar filter
-- `selectedPrompt` — prompt shown in right pane
-- `searchQuery` — search bar value
-- `ratingFilter` — star filter value
+- `activeCategory` — current sidebar category filter (`string | null`)
+- `selectedPromptId` — ID of prompt shown in right pane (`string | null`)
+- `searchQuery` — search bar value (sent as `?q=` to the API)
+- `editingPrompt` — prompt being created/edited in the modal
+- `editingField` — which inline field is being edited (`'model' | 'environment' | 'goodFor' | null`)
 
 **Prop drilling** is used throughout — no context or global store.
 
